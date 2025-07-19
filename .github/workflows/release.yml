@@ -1,5 +1,10 @@
-name: Release Docker Image with new Tag
-
+name: azure-devops-agent-pipeline
+description: |
+  This GitHub Actions workflow builds and pushes Docker images for the Azure DevOps agent.
+  It supports multiple architectures and logs into both DockerHub and GitHub Container Registry.
+  The workflow is triggered on pushes and pull requests to the main branch.
+version: 2.0
+author: jansouza
 on:
   push:
     branches:
