@@ -1,11 +1,22 @@
 FROM ubuntu:22.04
 ARG TARGETPLATFORM
-ARG BUILDPLATFORM
+ARG TARGETOS
 ARG TARGETARCH
+ARG TARGETVARIANT
 
 RUN echo "TARGETPLATFORM: $TARGETPLATFORM"
-RUN echo "BUILDPLATFORM: $BUILDPLATFORM"
+RUN echo "TARGETOS: $TARGETOS"
 RUN echo "TARGETARCH: $TARGETARCH"
+RUN echo "TARGETVARIANT: $TARGETVARIANT"
+
+RUN case "$TARGETPLATFORM" in \
+  "linux/amd64") TARGETARCH="linux-x64" ;; \
+  "linux/arm64") TARGETARCH="linux-arm64" ;; \
+  "linux/arm/v7") TARGETARCH="linux-arm" ;; \
+  *) TARGETARCH="unknown" ;; \
+  esac && \
+  echo "Set TARGETARCH to $TARGETARCH" && \
+  echo "TARGETARCH=$TARGETARCH" >> /etc/environment
 
 #ENV TARGETARCH="linux-x64"
 # Also can be "linux-arm", "linux-arm64".

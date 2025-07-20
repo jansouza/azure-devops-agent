@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+if [ -f /etc/environment ]; then
+  set -a
+  . /etc/environment
+  set +a
+fi
+
 if [ -z "${AZP_URL}" ]; then
   echo 1>&2 "error: missing AZP_URL environment variable"
   exit 1
