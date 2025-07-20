@@ -1,0 +1,77 @@
+# Ignore Python cache and build artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+.cache/
+
+# Node.js
+node_modules/
+
+# Editor folders
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Build output
+build/
+dist/
+coverage/
+*.log
+*.tmp
+*.bak
+*.old
+*.orig
+*.rej
+*.out
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.gz
+
+# Media
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.mp4
+*.mp3
+*.wav
+*.ogg
+*.webm
+*.mov
+*.avi
+*.flv
+*.wmv
+*.mkv
+
+# Documents
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+
+# Docker
+Dockerfile*
+.dockerignore

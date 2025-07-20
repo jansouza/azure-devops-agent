@@ -1,4 +1,4 @@
-name: azure-devops-agent-pipeline
+name: azp-agent-pipeline
 on:
   push:
     branches:
@@ -46,5 +46,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: | 
-            jansouza/azure-devops-agent:latest
-            ghcr.io/jansouza/azure-devops-agent:latest
+            jansouza/azp-agent:latest
+            ghcr.io/jansouza/azp-agent:latest

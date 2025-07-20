@@ -2,7 +2,24 @@ FROM ubuntu:22.04
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 
-ENV TARGETARCH="linux-x64"
+RUN echo "TARGETPLATFORM: $TARGETPLATFORM"
+RUN echo "BUILDPLATFORM: $BUILDPLATFORM"
+
+# Set TARGETARCH based on TARGETPLATFORM
+ARG TARGETARCH
+RUN if [ -z "$TARGETARCH" ]; then \
+      if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        echo "TARGETARCH=linux-x64" >> /etc/environment; \
+      elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        echo "TARGETARCH=linux-arm64" >> /etc/environment; \
+      elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
+        echo "TARGETARCH=linux-arm" >> /etc/environment; \
+      fi \
+    ; else \
+      echo "TARGETARCH=$TARGETARCH" >> /etc/environment; \
+    fi
+
+#ENV TARGETARCH="linux-x64"
 # Also can be "linux-arm", "linux-arm64".
 
 RUN apt update && \
@@ -14,8 +31,8 @@ RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 WORKDIR /azp/
 
-COPY assets/start.sh ./
-RUN chmod +x ./start.sh
+COPY assets/azp-start.sh ./
+RUN chmod +x ./azp-start.sh
 
 # Create agent user and set up home directory
 RUN useradd -m -d /home/agent agent
@@ -25,4 +42,4 @@ USER agent
 # Another option is to run the agent as root.
 # ENV AGENT_ALLOW_RUNASROOT="true"
 
-ENTRYPOINT [ "./start.sh" ]
+ENTRYPOINT [ "./azp-start.sh" ]
