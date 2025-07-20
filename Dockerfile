@@ -1,19 +1,11 @@
 FROM ubuntu:22.04
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
+ARG TARGETARCH
 
 RUN echo "TARGETPLATFORM: $TARGETPLATFORM"
 RUN echo "BUILDPLATFORM: $BUILDPLATFORM"
-
-# Set TARGETARCH based on TARGETPLATFORM
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-      echo "TARGETARCH=linux-x64" >> /etc/environment; \
-    elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
-      echo "TARGETARCH=linux-arm64" >> /etc/environment; \
-    elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
-      echo "TARGETARCH=linux-arm" >> /etc/environment; \
-    fi
-RUN . /etc/environment && echo "TARGETARCH: $TARGETARCH"
+RUN echo "TARGETARCH: $TARGETARCH"
 
 #ENV TARGETARCH="linux-x64"
 # Also can be "linux-arm", "linux-arm64".
