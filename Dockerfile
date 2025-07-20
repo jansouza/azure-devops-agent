@@ -6,18 +6,14 @@ RUN echo "TARGETPLATFORM: $TARGETPLATFORM"
 RUN echo "BUILDPLATFORM: $BUILDPLATFORM"
 
 # Set TARGETARCH based on TARGETPLATFORM
-ARG TARGETARCH
-RUN if [ -z "$TARGETARCH" ]; then \
-      if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-        echo "TARGETARCH=linux-x64" >> /etc/environment; \
-      elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
-        echo "TARGETARCH=linux-arm64" >> /etc/environment; \
-      elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
-        echo "TARGETARCH=linux-arm" >> /etc/environment; \
-      fi \
-    ; else \
-      echo "TARGETARCH=$TARGETARCH" >> /etc/environment; \
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+      echo "TARGETARCH=linux-x64" >> /etc/environment; \
+    elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+      echo "TARGETARCH=linux-arm64" >> /etc/environment; \
+    elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
+      echo "TARGETARCH=linux-arm" >> /etc/environment; \
     fi
+RUN . /etc/environment && echo "TARGETARCH: $TARGETARCH"
 
 #ENV TARGETARCH="linux-x64"
 # Also can be "linux-arm", "linux-arm64".
