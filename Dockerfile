@@ -25,6 +25,10 @@ RUN apt update && \
   apt upgrade -y && \
   apt install -y curl git jq libicu70
 
+# Install Java Development Kits
+# This installs OpenJDK 8, 11, and 17.
+RUN apt install -y openjdk-8-jdk openjdk-11-jdk openjdk-17-jdk
+
 # Install Azure CLI
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
