@@ -25,12 +25,26 @@ RUN apt update && \
   apt upgrade -y && \
   apt install -y curl git jq libicu70
 
-# Install Java Development Kits
-# This installs OpenJDK 8, 11, and 17.
-RUN apt install -y openjdk-8-jdk openjdk-11-jdk openjdk-17-jdk
-
 # Install Azure CLI
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+# Install Java Development Kits
+RUN apt install -y openjdk-8-jdk openjdk-11-jdk openjdk-17-jdk
+
+# Install Maven
+RUN apt install -y maven
+
+# Install Helm
+RUN curl https://baltocdn.com/helm/signing.asc | apt-key add - && \
+    apt-get install -y apt-transport-https --no-install-recommends && \
+    echo "deb https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list && \
+    apt-get update && \
+    apt-get install -y helm
+
+# Install kubectl
+RUN curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+    install -m 0755 kubectl /usr/local/bin/kubectl && \
+    rm kubectl
 
 WORKDIR /azp/
 
