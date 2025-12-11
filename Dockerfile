@@ -54,6 +54,8 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y docker-ce-cli
 
+ENV DOCKER_API_VERSION=1.43
+
 WORKDIR /azp/
 
 COPY assets/azp-start.sh ./
