@@ -23,7 +23,7 @@ RUN case "$TARGETPLATFORM" in \
 
 RUN apt update && \
   apt upgrade -y && \
-  apt install -y curl git jq libicu70
+  apt install -y curl git jq libicu70 unzip
 
 # Install Azure CLI
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
