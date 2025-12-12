@@ -18,12 +18,9 @@ RUN case "$TARGETPLATFORM" in \
   echo "Set TARGETARCH to $TARGETARCH" && \
   echo "TARGETARCH=$TARGETARCH" >> /etc/environment
 
-#ENV TARGETARCH="linux-x64"
-# Also can be "linux-arm", "linux-arm64".
-
 RUN apt update && \
   apt upgrade -y && \
-  apt install -y curl gpg apt-transport-https git jq libicu70 unzip
+  apt install -y curl gpg apt-transport-https git jq libicu70 unzip sudo
 
 # Install Azure CLI
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
@@ -56,17 +53,20 @@ RUN apt-get update && \
 
 ENV DOCKER_API_VERSION=1.43
 
-WORKDIR /azp/
+WORKDIR /azp
 
 COPY assets/azp-start.sh ./
 RUN chmod +x ./azp-start.sh
 
 # Create agent user and set up home directory
-RUN useradd -m -d /home/agent agent
-RUN chown -R agent:agent /azp /home/agent
+RUN useradd -m -d /home/agent agent && \
+    usermod -aG sudo agent && \
+    echo "agent ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Set correct permissions for /azp
+RUN chown -R agent:agent /azp /home/agent && \
+    chmod -R 775 /azp
 
 USER agent
-# Another option is to run the agent as root.
-# ENV AGENT_ALLOW_RUNASROOT="true"
 
 ENTRYPOINT [ "./azp-start.sh" ]
