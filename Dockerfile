@@ -31,6 +31,14 @@ RUN apt install -y openjdk-8-jdk openjdk-11-jdk openjdk-17-jdk
 # Install Maven
 RUN apt install -y maven
 
+# Install Python3 and pip
+RUN apt install -y python3 python3-pip
+
+# Install yamale and yamllint
+RUN pip3 install yamale yamllint && \
+    ln -sf /usr/local/bin/yamale /usr/bin/yamale && \
+    ln -sf /usr/local/bin/yamllint /usr/bin/yamllint
+
 # Install Helm
 RUN curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null && \
     echo "deb [signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main" | tee /etc/apt/sources.list.d/helm-stable-debian.list && \
