@@ -7,9 +7,15 @@ if [ -f /etc/environment ]; then
   set +a
 fi
 
+# Auto-detect TARGETARCH if not set
 if [ -z "${TARGETARCH}" ]; then
-  echo 1>&2 "error: missing TARGETARCH environment variable"
-  exit 1
+  case "$(uname -m)" in
+    "x86_64")  TARGETARCH="linux-x64" ;;
+    "aarch64") TARGETARCH="linux-arm64" ;;
+    "armv7l")  TARGETARCH="linux-arm" ;;
+    *)         TARGETARCH="linux-x64" ;;
+  esac
+  echo "TARGETARCH not set, auto-detected: ${TARGETARCH}"
 fi
 
 if [ -z "${AZP_URL}" ]; then
@@ -48,10 +54,9 @@ cleanup() {
   if [ -e ./config.sh ]; then
     print_header "Cleanup. Removing Azure Pipelines agent..."
 
-    # If the agent has some running jobs, the configuration removal process will fail.
-    # So, give it some time to finish the job.
     while true; do
-      ./config.sh remove --unattended --auth "PAT" --token $(cat "${AZP_TOKEN_FILE}") && break
+      # Use the same auth method used during config
+      ./config.sh remove --unattended --auth "PAT" --token "$(cat "${AZP_TOKEN_FILE}")" && break
 
       echo "Retrying in 30 seconds..."
       sleep 30
@@ -75,17 +80,35 @@ AZP_AGENT_PACKAGES=$(curl -LsS \
     -H "Accept:application/json" \
     "${AZP_URL}/_apis/distributedtask/packages/agent?platform=${TARGETARCH}&top=1")
 
+# Debug: log the response to help diagnose issues
+echo "Agent packages response: ${AZP_AGENT_PACKAGES}" | head -c 500
+
 AZP_AGENT_PACKAGE_LATEST_URL=$(echo "${AZP_AGENT_PACKAGES}" | jq -r ".value[0].downloadUrl")
 
 if [ -z "${AZP_AGENT_PACKAGE_LATEST_URL}" -o "${AZP_AGENT_PACKAGE_LATEST_URL}" == "null" ]; then
   echo 1>&2 "error: could not determine a matching Azure Pipelines agent"
-  echo 1>&2 "check that account "${AZP_URL}" is correct and the token is valid for that account"
+  echo 1>&2 "Platform requested: ${TARGETARCH}"
+  echo 1>&2 "AZP_URL: ${AZP_URL}"
+  echo 1>&2 "Raw response: ${AZP_AGENT_PACKAGES}"
+  exit 1
+fi
+
+# Após obter AZP_AGENT_PACKAGE_LATEST_URL, verificar se é versão 3.x
+AGENT_VERSION=$(echo "${AZP_AGENT_PACKAGES}" | jq -r ".value[0].version.major")
+if [ "${AGENT_VERSION}" -lt 3 ]; then
+  echo 1>&2 "error: Agent version ${AGENT_VERSION}.x is not supported on Ubuntu 24.04. Requires 3.x+"
   exit 1
 fi
 
 print_header "2. Downloading and extracting Azure Pipelines agent..."
 
-curl -LsS "${AZP_AGENT_PACKAGE_LATEST_URL}" | tar -xz & wait $!
+# Removed background+wait pattern to properly catch extraction errors
+curl -LsS "${AZP_AGENT_PACKAGE_LATEST_URL}" | tar -xz
+
+if [ ! -f ./env.sh ]; then
+  echo 1>&2 "error: env.sh not found after extraction - download may have failed"
+  exit 1
+fi
 
 source ./env.sh
 
@@ -95,12 +118,11 @@ trap "cleanup; exit 143" TERM
 
 print_header "3. Configuring Azure Pipelines agent..."
 
-# Despite it saying "PAT", it can be the token through the service principal
 ./config.sh --unattended \
   --agent "${AZP_AGENT_NAME:-$(hostname)}" \
   --url "${AZP_URL}" \
   --auth "PAT" \
-  --token $(cat "${AZP_TOKEN_FILE}") \
+  --token "$(cat "${AZP_TOKEN_FILE}")" \
   --pool "${AZP_POOL:-Default}" \
   --work "${AZP_WORK:-_work}" \
   --replace \
