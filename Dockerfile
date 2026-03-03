@@ -100,8 +100,10 @@ RUN mkdir -p /etc/apt/keyrings && \
 WORKDIR /azp
 COPY assets/azp-start.sh ./
 RUN chmod +x ./azp-start.sh && \
-    groupadd -g 1001 agent && \
-    useradd -m -d /home/agent -u 1001 -g 1001 agent && \
+    userdel -r ubuntu || true && \
+    groupdel ubuntu || true && \
+    groupadd -g 1000 agent && \
+    useradd -m -d /home/agent -u 1000 -g 1000 agent && \
     usermod -aG sudo agent && \
     echo "agent ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
     chown -R agent:agent /azp /home/agent && \
