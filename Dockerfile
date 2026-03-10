@@ -69,14 +69,22 @@ RUN pip3 install --break-system-packages yamale yamllint && \
     ln -sf /usr/local/bin/yamale /usr/bin/yamale && \
     ln -sf /usr/local/bin/yamllint /usr/bin/yamllint
 
-# Layer 6: Helm (changes independently)
+# Layer 6: .NET SDK (changes independently)
+RUN curl -sSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh && \
+    chmod +x /tmp/dotnet-install.sh && \
+    /tmp/dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet && \
+    /tmp/dotnet-install.sh --channel 9.0 --install-dir /usr/share/dotnet && \
+    ln -s /usr/share/dotnet/dotnet /usr/local/bin/dotnet && \
+    rm /tmp/dotnet-install.sh
+
+# Layer 7: Helm (changes independently)
 RUN curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null && \
     echo "deb [signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main" | tee /etc/apt/sources.list.d/helm-stable-debian.list && \
     apt-get update && \
     apt-get install -y helm && \
     rm -rf /var/lib/apt/lists/*
 
-# Layer 7: kubectl (changes independently) - fixed for multi-arch
+# Layer 8: kubectl (changes independently) - fixed for multi-arch
 RUN PLATFORM="${TARGETPLATFORM:-$(dpkg --print-architecture)}" && \
     KUBECTL_ARCH=$(case "$PLATFORM" in \
       "linux/amd64"|"amd64") echo "amd64" ;; \
@@ -88,7 +96,7 @@ RUN PLATFORM="${TARGETPLATFORM:-$(dpkg --print-architecture)}" && \
     install -m 0755 kubectl /usr/local/bin/kubectl && \
     rm kubectl
 
-# Layer 8: Docker CLI (changes independently)
+# Layer 9: Docker CLI (changes independently)
 RUN mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list && \
@@ -96,7 +104,7 @@ RUN mkdir -p /etc/apt/keyrings && \
     apt-get install -y docker-ce-cli && \
     rm -rf /var/lib/apt/lists/*
 
-# Layer 9: Agent setup (changes most frequently)
+# Layer 10: Agent setup (changes most frequently)
 WORKDIR /azp
 COPY assets/azp-start.sh ./
 RUN chmod +x ./azp-start.sh && \
