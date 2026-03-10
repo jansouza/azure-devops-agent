@@ -10,6 +10,7 @@ A Docker image based on **Ubuntu 24.04** for running Azure DevOps agents in Linu
 | Java (OpenJDK) | 8, 11, 17 |
 | Maven | latest |
 | Python | 3.9, 3.10, 3.11, 3.12 (default), 3.13, 3.14 |
+| .NET SDK | 8.0 (LTS), 9.0 |
 | Helm | latest |
 | kubectl | latest stable |
 | Docker CLI | latest |
@@ -118,9 +119,10 @@ The Dockerfile is organized in layers ordered by change frequency to maximize Do
 3. **Java** — OpenJDK 8, 11, 17 + Maven
 4. **Python** — multiple versions with pip, venv and dev headers
 5. **Python tools** — yamale, yamllint
-6. **Helm** — via official Helm repository
-7. **kubectl** — latest stable binary
-8. **Docker CLI** — via official Docker repository
-9. **Agent setup** — user, permissions, entrypoint script
+6. **.NET SDK** — versions 8.0 (LTS) and 9.0 via official install script
+7. **Helm** — via official Helm repository
+8. **kubectl** — latest stable binary
+9. **Docker CLI** — via official Docker repository
+10. **Agent setup** — user, permissions, entrypoint script
 
 > Each layer cleans `apt` cache with `rm -rf /var/lib/apt/lists/*` to minimize final image size.
